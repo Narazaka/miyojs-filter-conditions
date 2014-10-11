@@ -1,0 +1,20 @@
+{
+	"name": "miyojs-filter-conditions",
+	"version": "0.0.1",
+	"description": "conditions - easy conditions filter for Miyo",
+	"main": "conditions.js",
+	"scripts": {
+		"test": "mocha"
+	},
+	"dependencies": {
+	},
+	"author": {
+		"name": "narazaka",
+		"url": "http://narazaka.net/"
+	},
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Narazaka/miyojs-filter-conditions.git"
+	}
+}
