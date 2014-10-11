@@ -1,6 +1,6 @@
 {
 	"name": "miyojs-filter-conditions",
-	"version": "0.0.1",
+	"version": "0.0.2",
 	"description": "conditions - easy conditions filter for Miyo",
 	"main": "conditions.js",
 	"scripts": {
