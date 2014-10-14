@@ -2,7 +2,7 @@ chai = require 'chai'
 chai.should()
 expect = chai.expect
 sinon = require 'sinon'
-property_filter = require 'miyojs-filter-property'
+Miyo = require 'miyojs'
 MiyoFilters = require '../conditions.js'
 
 describe 'caller', ->
@@ -10,97 +10,112 @@ describe 'caller', ->
 	request = null
 	id = null
 	stash = null
-	filter = MiyoFilters.conditions
 	beforeEach ->
-		ms = sinon.stub()
-		ms.call_entry = sinon.stub()
-		ms.filters =
-			property_handler: property_filter.property_handler
-		property_filter.property_initialize.call ms,
-			property_initialize:
-				handlers: ['coffee', 'jse', 'js']
+		ms = new Miyo()
+		initialize_entry =
+			filters: ['miyo_require_filters', 'property_initialize']
+			argument:
+				miyo_require_filters: ['property']
+				property_initialize:
+					handlers: ['coffee', 'jse', 'js']
+		ms.call_filters initialize_entry, null, '_load'
+		for name, filter of MiyoFilters
+			ms.filters[name] = filter
+		sinon.spy ms, 'call_entry'
 		request = sinon.stub()
 		id = 'OnTest'
 		stash = null
 	it 'should return undefined with no conditions', ->
-		ret = filter.call ms, {}, request, id, stash
+		entry =
+			filters: ['conditions']
+		ret = ms.call_filters entry, request, id, stash
 		expect(ret).is.undefined
 		ms.call_entry.callCount.should.be.equal 0
 	it 'should work with true', ->
-		filter.call ms,
-			conditions: [
-				{
-					when: 1
-					do: 'y'
-				}
-				{
-					when: 1
-					do: 'n'
-				}
-			]
-			, request, id, stash
+		entry =
+			filters: ['conditions']
+			argument:
+				conditions: [
+					{
+						when: 1
+						do: 'y'
+					}
+					{
+						when: 1
+						do: 'n'
+					}
+				]
+		ms.call_filters entry, request, id, stash
 		ms.call_entry.lastCall.args[0].should.be.deep.equal 'y'
 	it 'should return on no match', ->
-		filter.call ms,
-			conditions: [
-				{
-					when: 0
-					do: 'n'
-				}
-			]
-			, request, id, stash
+		entry =
+			filters: ['conditions']
+			argument:
+				conditions: [
+					{
+						when: 0
+						do: 'n'
+					}
+				]
+		ms.call_filters entry, request, id, stash
 		ms.call_entry.callCount.should.be.equal 0
 	it 'should always take entry which has no "when"', ->
-		filter.call ms,
-			conditions: [
-				{
-					when: 0
-					do: 'n'
-				}
-				{
-					do: 'y'
-				}
-			]
-			, request, id, stash
+		entry =
+			filters: ['conditions']
+			argument:
+				conditions: [
+					{
+						when: 0
+						do: 'n'
+					}
+					{
+						do: 'y'
+					}
+				]
+		ms.call_filters entry, request, id, stash
 		ms.call_entry.lastCall.args[0].should.be.deep.equal 'y'
 	it 'should work with code', ->
-		filter.call ms,
-			conditions: [
-				{
-					'when.jse': 'false'
-					do: 'n1'
-				}
-				{
-					'when.jse': 'id == "OnTest"'
-					do: 'y'
-				}
-				{
-					'when.jse': 'true'
-					do: 'n2'
-				}
-			]
-			, request, id, stash
+		entry =
+			filters: ['conditions']
+			argument:
+				conditions: [
+					{
+						'when.jse': 'false'
+						do: 'n1'
+					}
+					{
+						'when.jse': 'id == "OnTest"'
+						do: 'y'
+					}
+					{
+						'when.jse': 'true'
+						do: 'n2'
+					}
+				]
+		ms.call_filters entry, request, id, stash
 		ms.call_entry.lastCall.args[0].should.be.deep.equal 'y'
 	it 'should work with code alternative', ->
-		filter.call ms,
-			conditions: [
-				{
-					'when.jse': 'false'
-					do: 'n1'
-				}
-				{
-					when: 0
-					do: 'n2'
-				}
-				{
-					'when.jse': 'false'
-					'when.coffee': 'id == "OnTest"'
-					do: 'y'
-				}
-				{
-					'when.jse': 'true'
-					do: 'n3'
-				}
-			]
-			, request, id, stash
+		entry =
+			filters: ['conditions']
+			argument:
+				conditions: [
+					{
+						'when.jse': 'false'
+						do: 'n1'
+					}
+					{
+						when: 0
+						do: 'n2'
+					}
+					{
+						'when.jse': 'false'
+						'when.coffee': 'id == "OnTest"'
+						do: 'y'
+					}
+					{
+						'when.jse': 'true'
+						do: 'n3'
+					}
+				]
+		ms.call_filters entry, request, id, stash
 		ms.call_entry.lastCall.args[0].should.be.deep.equal 'y'

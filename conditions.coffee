@@ -3,8 +3,8 @@
 unless MiyoFilters?
 	MiyoFilters = {}
 
-MiyoFilters.conditions = (argument, request, id, stash) ->
-	return unless argument.conditions?
+MiyoFilters.conditions = type: 'data-value', filter: (argument, request, id, stash) ->
+	return unless argument?.conditions?
 	for condition in argument.conditions
 		if (not @has_property condition, 'when') or @property condition, 'when', request, id, stash
 			return @call_entry condition.do, request, id, stash
